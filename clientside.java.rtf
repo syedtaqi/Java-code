@@ -1,0 +1,55 @@
+import java.io.*;
+import java.net.*;
+
+public class myclientfile {
+
+	@SuppressWarnings("deprecation")
+	public static void main(String[] args){
+//Author: Syed Taqi Raza		
+//All rights reserved
+//ClientSocket: The client socket.
+//OutputSt : output stream
+//InputSt: Input Stream
+// client will try to open a socket on port 4444
+// client will also try to open input and output streams
+		
+		Socket ClientSocket = null;
+		DataOutputStream OutputSt = null;
+		DataInputStream InputSt = null;
+		
+		try{
+			ClientSocket = new Socket ("hostname", 1200);
+			OutputSt = new DataOutputStream(ClientSocket.getOutputStream());
+			InputSt = new DataInputStream(ClientSocket.getInputStream());
+			} catch (UnknownHostException e){
+				System.err.println("host not found");
+			} catch (IOException e) {
+				System.err.println("Couldnt found I/O");
+			}
+		
+		//Writing data to the server
+		if (ClientSocket != null && InputSt != null && OutputSt != null)
+		{
+			try {
+				OutputSt.writeBytes("Hey server");
+				OutputSt.writeBytes("Bye");
+			
+				String responseLine;
+                while ((responseLine = InputSt.readLine()) != null) {
+                    System.out.println("Server: " + responseLine);
+                    if (responseLine.indexOf("Bye") != -1) {
+                      break;
+                    }
+                }
+				
+			//closing the socket and output stream
+				OutputSt.close();
+				ClientSocket.close();
+			} catch (IOException e){ 
+				System.err.println("exit");
+			}
+		}
+		
+		
+	}
+}
