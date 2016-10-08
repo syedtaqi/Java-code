@@ -1,0 +1,105 @@
+Author: Syed Taqi Raza 
+
+This is a Client-Server protocol, the server is multithreaded to support upto worker pool of 10 threads simultaneously,
+where client and server both opens up a socket, Server waits for a file request from a client. 
+The client sends a file request to the server to be downloaded. If the file does exist then, 
+the file "X" is downloaded. If the file doesn't exist, client prompts the message the 
+file "X" does not exists at the server. The statistics of total requests "M" and 
+success requests "N" are also generated and synchronized accordingly.
+
+========================================================================================= 
+Client Server Successfull transfer
+=========================================================================================
+ Client					  	   Server
+Open socket----------------------------------------Open Socket
+					      
+Request file ------------Get file.txt----------> File Requested from IP 
+Wait for file					 
+File X found <--------File X found at server------------- Successful
+Downloading.....<----------File sent----------------Transferring file
+Server handled M requests <---------------------- Server handled N requests
+N successful requests
+Download Complete<----------------------<----------Transfer complete
+     
+========================================================================
+========================================================================
+Client Server Not successfull
+========================================================================
+  Client					     Server
+Open socket----------------------------------------Open Socket
+					      
+Request file ------------Get file.txt----------> File Requested from IP 
+					 
+File X not found <--------Error msg------------- Not Successful
+
+Server handled M requests <---------------------- Total Successful Request so far = N
+N successful requests
+			<------------------------->Transfer Complete
+=========================================================================
+---------------------------------------------------------------------
+Step 1: Client and server both opens a socket
+
+Server opens a socket
+	 ServerSocket	SrvSck = new ServerSocket(port);
+Client opens a socket
+ 	Clientsocket = new Socket(server, port);    
+
+---------------------------------------------------------------------
+Step 2: Server waits for requests from the clients
+----------------------------------------------------------------------	
+Step 3: Client send the request for a file to be downloaded from the server
+ 	 out.write(fileReq +"\n");  // send out the request
+------------------------------------------------------------------------
+Step 4: Client waits for the file
+	System.out.println("Waiting for file");
+---------------------------------------------------------------------------
+Step 5: Server checks in its directory if the file exists or does not exists.
+	checkExist = new File(fileFolder + fileReq).isFile();    //This checks if the exists or not
+
+	int b = 0;   //This means file does not exists, and the msg is promted to the client
+		
+	int b = 1;   //This means the file exists in the server directory
+-----------------------------------------------------------------------------
+Step 6:
+If the file is existed in the server it is then sent to the client using mybytearray
+	byte[] mybytearray = new byte[(int) myFile.length()];
+    	System.out.println("File "+myFile+" sent to client.");   //The file "X" sent to the client
+
+If the file is not existed in the server, the client side prompts a message
+	 System.out.println("File" + fileReq +" not found at server"); //The file "X" Not found at server
+
+-----------------------------------------------------------------------------------
+Step 7: Client gets the result if the file existed or not, then
+	it downloads the requested file if existed and writes it into the directory
+	Rectestfile
+		is = Clientsocket.getInputStream()    //// get the result of if the file exists
+	
+	Downloads and writes the file into the directory using bytes
+		while (size > 0 && (bytesRead = cData.read(buffer, 0, (int) Math.min(buffer.length, size))) != -1) {
+                  output.write(buffer, 0, bytesRead);
+                  size -= bytesRead;
+              }
+------------------------------------------------------------------------------------
+Step 8: While the file is downloading, Client prompts a msg to the user:
+
+	 System.out.println("Downloading file" + fileReq); // "The "X" file is Downloading"
+-----------------------------------------------------------------------------------
+Step 9: Statistics  
+At the Client Side, at this point, we want to collect and print the stats no matter success or fail
+totalReq is the total requests <N> the server handled, and succReq is the number of requests that are actually
+successfull <M>. 	
+	System.out.println("Server handled" +totalReq +" requests," + succReq + " requests were successful" );
+
+At the server side: Gives the total number of successful requests N
+System.out.println("REQ " + getTotalReq() + ":"+ " Total successful requests so far ="+ getSuccReq());
+
+
+
+-------------------------------------------------------------------------------------
+Step 10:  The transfer is complete if successful the msgs are prompted at both client server side, otherwise only at server side
+	server side:
+		System.out.println("REQ " + getTotalReq() + ":" + " File transfer complete");
+
+	Client side:
+		 System.out.println("Download complete");
+--------------------------------------------------------------------------------------
