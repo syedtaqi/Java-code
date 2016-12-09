@@ -2,7 +2,8 @@ import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 //Author: Syed Taqi Raza 
-
+//Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License in effect
+	
 public class myclientfile {
 	public static int succReq = 0; 
 	public static int totalReq = 0;
